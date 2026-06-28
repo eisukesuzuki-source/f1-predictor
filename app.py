@@ -126,18 +126,25 @@ def _race_date_str(event) -> str:
 
 
 def _headshot_html(d: DriverScore, tc: str, size: int = 42) -> str:
-    if d.headshot_url:
-        return (
-            f'<img src="{d.headshot_url}" style="width:{size}px;height:{size}px;border-radius:50%;'
-            f'border:2px solid {tc};object-fit:cover;margin:0 12px;flex-shrink:0"'
-            f' onerror="this.style.display=\'none\'">'
-        )
     abbr = d.abbreviation[:3].upper()
-    return (
-        f'<div style="width:{size}px;height:{size}px;border-radius:50%;background:{tc}33;'
-        f'border:2px solid {tc};display:flex;align-items:center;justify-content:center;'
-        f'margin:0 12px;font-size:0.7rem;color:{tc};font-weight:bold;flex-shrink:0">{abbr}</div>'
+    fallback_style = (
+        f"width:{size}px;height:{size}px;border-radius:50%;background:{tc}33;"
+        f"border:2px solid {tc};display:flex;align-items:center;justify-content:center;"
+        f"margin:0 12px;font-size:0.7rem;color:{tc};font-weight:bold;flex-shrink:0"
     )
+    fallback_div = f'<div style="{fallback_style}">{abbr}</div>'
+    if d.headshot_url:
+        img_style = (
+            f"width:{size}px;height:{size}px;border-radius:50%;"
+            f"border:2px solid {tc};object-fit:cover;margin:0 12px;flex-shrink:0"
+        )
+        onerror = (
+            f"this.outerHTML='{fallback_div.replace(chr(39), chr(34))}'"
+        )
+        return (
+            f'<img src="{d.headshot_url}" style="{img_style}" onerror="{onerror}">'
+        )
+    return fallback_div
 
 
 def _actual_badge_html(predicted_pos: int, actual_pos: int) -> str:
