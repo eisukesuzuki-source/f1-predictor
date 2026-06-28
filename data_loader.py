@@ -80,7 +80,10 @@ def get_quali_data(year: int, round_number: int) -> dict:
     if results is None or len(results) == 0:
         return {}
 
-    laps = session.laps
+    try:
+        laps = session.laps
+    except Exception:
+        laps = None
 
     # Build per-driver fastest lap compound and time
     driver_compound: dict[str, str] = {}
@@ -582,10 +585,10 @@ def get_tire_strategy_data(year: int, round_number: int, n_years: int = 3) -> di
         try:
             session = fastf1.get_session(past_year, past_round, "R")
             session.load(laps=True, telemetry=False, weather=False, messages=False)
+            laps = session.laps
         except Exception:
             continue
 
-        laps = session.laps
         if laps is None or len(laps) == 0:
             continue
 
